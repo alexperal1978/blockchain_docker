@@ -5,7 +5,7 @@ Criando sua blockchain privada:
 É necessário criar 2 nós para o teste. Instalei 2 servidores ubunto com o Docker.
 
 
-1. Criando a blockchain (isto tem q ser feito em ambos os nós):
+#1. Criando a blockchain (isto tem q ser feito em ambos os nós):
 
 Com o ubunto já em funcionamento em modo root ou su, acesse um deles para ser o nó 1 e rode os comandos, vou chamar a blockchain de "chain1":
 
@@ -20,7 +20,7 @@ multichaind chain1 -daemon
 O endereço gerado servirá para o segundo nó (linux) acessar sua chain1.
 
 
-2. Conectando (use o endereço fornecido acima no nó 1 para usar no nó 2):
+#2. Conectando (use o endereço fornecido acima no nó 1 para usar no nó 2):
 
 
 multichaind chain1@172.17.0.2:9723
@@ -36,7 +36,7 @@ multichaind chain1 -daemon
 
 node started significa que já está rodando.
 
-3. comandos em modo interativo para não digitar multichain-cli chain1 para todo comando:
+#3. comandos em modo interativo para não digitar multichain-cli chain1 para todo comando:
 
 
 multichain-cli chain1
@@ -52,7 +52,7 @@ getblockchainparams
 getpeerinfo
 
 
-4. usando e trafegando ativos:
+#4. usando e trafegando ativos:
 
 No primeiro nó, de o comando:
 listpermissions issue
