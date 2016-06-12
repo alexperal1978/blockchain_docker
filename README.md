@@ -10,10 +10,15 @@ Criando sua blockchain privada:
 Para baixar e instalar o multichain:
 
 cd /tmp
+
 wget http://www.multichain.com/download/multichain-1.0-alpha-21.tar.gz
+
 tar -xvzf multichain-1.0-alpha-21.tar.gz
+
 cd multichain-1.0-alpha-21
+
 mv multichaind multichain-cli multichain-util /usr/local/bin
+
 
 Com o ubunto já em funcionamento em modo root ou su, acesse um deles para ser o nó 1 e rode os comandos, vou chamar a blockchain de "chain1":
 
