@@ -7,6 +7,14 @@ Criando sua blockchain privada:
 
 #1. Criando a blockchain (isto tem q ser feito em ambos os nós):
 
+Para baixar e instalar o multichain:
+
+cd /tmp
+wget http://www.multichain.com/download/multichain-1.0-alpha-21.tar.gz
+tar -xvzf multichain-1.0-alpha-21.tar.gz
+cd multichain-1.0-alpha-21
+mv multichaind multichain-cli multichain-util /usr/local/bin
+
 Com o ubunto já em funcionamento em modo root ou su, acesse um deles para ser o nó 1 e rode os comandos, vou chamar a blockchain de "chain1":
 
 multichain-util create chain1
@@ -93,3 +101,19 @@ listwallettransactions 1
 
 
 Pronto! Você já consegue enviar e receber moedas de um nó p/outro!
+
+#5 Configurando o nó 1 para acesso RPC
+
+altere os parâmetros da  chain1/params.dat
+
+Coloque true para anyone-can-connect, anyone-can-send, anyone-can-receive, anyone-can-issue
+
+Mais abaixo no final do arquivo veja o número da porta RPC no parametro "default-rpc-port =". Ele será útil.
+
+#Subindo a Chain com os parametros RPC
+
+multichaind chain1 -daemon -rpcuser='teste' -rpcpassword='teste'
+
+
+
+
