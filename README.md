@@ -1,124 +1,143 @@
-# blockchain_docker
+# Blockchain com Docker!
 
-Criando sua blockchain privada:
+# Montando o amiente
 
-É necessário criar 2 nós para o teste. Instalei 2 servidores ubunto com o Docker.
+Depois de instalar o Docker, abrir com o Kitematic
 
+Adicionar no +new, uma máquina virtual ubuntu-upstart Oficial
 
-#1. Criando a blockchain (isto tem q ser feito em ambos os nós):
+Após criada, entrar no container como root;
 
-Para baixar e instalar o multichain:
+docker exec -it 70210857c0a4 bash
+
+Atualizar sua maquina vistual com apt-get update;
+
+Instalar o nano com apt-get;
+
+Instalar o git com apt-get;
+
+Instalar o nodejs apt-get install nodejs;
+
+P/ checar se o node foi instalado root@70210857c0a4:/# nodejs -v
+v0.10.25
+A versão tem que aparecer.
+
+Instalar o npm;
+
+# Para fazer o download do multichain:
 
 cd /tmp
-
 wget http://www.multichain.com/download/multichain-1.0-alpha-21.tar.gz
-
 tar -xvzf multichain-1.0-alpha-21.tar.gz
-
 cd multichain-1.0-alpha-21
-
 mv multichaind multichain-cli multichain-util /usr/local/bin
 
+# Criação do blockchain
 
-Com o ubunto já em funcionamento em modo root ou su, acesse um deles para ser o nó 1 e rode os comandos, vou chamar a blockchain de "chain1":
+multichain-util create chain2
 
-multichain-util create chain1
+Altere os privilégios de acesso do arquivo params.dat, dentro da pasta do blockchain criado.
 
+~/.multichain/chain2# nano params.dat
 
-Inicialize sua blockchain:
+Altere as seguintes entrada p/ true:
 
-multichaind chain1 -daemon
+Global permissions
 
+anyone-can-connect = true              # Anyone can connect, i.e. a publicly readable blockchain.
+anyone-can-send = true                 # Anyone can send, i.e. transaction signing not restricted by address.
+anyone-can-receive = true              # Anyone can receive, i.e. transaction outputs not restricted by address.
+anyone-can-issue = true                # Anyone can issue new native assets.
 
-O endereço gerado servirá para o segundo nó (linux) acessar sua chain1.
+Mais abaixo, anote a porta RPC
 
+default-rpc-port = 6808
 
-#2. Conectando (use o endereço fornecido acima no nó 1 para usar no nó 2):
+Após salvar as alterações, recupere as informações de RPC do arquivo multichain.conf
 
+cat multichain.conf
+rpcuser=alex
+rpcpassword=teste
 
-multichaind chain1@172.17.0.2:9723
+Agora sim, podemos iniciar nossa blockchain
 
-Uma mensagem de permissão será dada, copie o código da wallet e rode o comando abaixo no primeiro nó:
+multichaind chain2 -daemon -rpcuser=multichainrpc -rpcpassword=DA7tMWRBqdtQmyo8f5TQ9K2mbZkP9YUhmjHB3ssM553
 
-multichain-cli chain1 grant <codigo> connect
+DEve aparecer uma mensagem como abaixo:
 
+MultiChain Core Daemon build 1.0 alpha 21 protocol 10005
 
-Tente conectar novamente no segundo nó:
+MultiChain server starting
+Looking for genesis block...
+Genesis block found
+New users can connect to this node using
+multichaind chain2@172.17.0.3:6809
 
-multichaind chain1 -daemon
+Node started --> isto significa que funfou!
 
-node started significa que já está rodando.
+# Agora vamos p App
 
-#3. comandos em modo interativo para não digitar multichain-cli chain1 para todo comando:
+Vamos baixar uma imagem de uma App teste do Git.
 
+Vamos criar as chaves para acessar o Git:
 
-multichain-cli chain1
+ssh-keygen -t rsa -b 4096 -C "alex.peral@yahoo.com.br"
 
-Segue uma lista de comandos que podem ser dados no modo interativo:
+Ele irá perguntar se deseja armazenar em algum local específico e se deseja uma senha:
 
-getinfo
-help
-listpermissions
-getnewaddress
-getaddresses
-getblockchainparams
-getpeerinfo
+Generating public/private rsa key pair.
+Enter file in which to save the key (/root/.ssh/id_rsa):
+Created directory '/root/.ssh'.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /root/.ssh/id_rsa.
+Your public key has been saved in /root/.ssh/id_rsa.pub.
+The key fingerprint is:
+00:ca:c0:31:e7:81:89:00:4f:3c:0e:b5:4d:30:12:d4 alex.peral@yahoo.com.br
+The key's randomart image is:
++--[ RSA 4096]----+
+|%BX+o            |
+|oX*E..           |
+| o=o. .          |
+|  .    .         |
+|        S        |
+|                 |
+|                 |
+|                 |
+|                 |
++-----------------+
 
+PAra checar se funcionou:
 
-#4. usando e trafegando ativos:
+eval "$(ssh-agent -s)"
+Agent pid 1808
 
-No primeiro nó, de o comando:
-listpermissions issue
+Para pegar a chave e colocar no seu GitHub:
 
-Copie e cole o código do issue no comando abaixo para criar um ativo com 1000 unidades que será dividida em 100 partes de 10:
+ssh-add ~/.ssh/id_rsa
 
+cat /root/.ssh/id_rsa.pub
 
-issue <codigoissue> asset1 1000 0.01
+Vai retornar uma parada assim:
 
-VErifique em ambos os nós se o asset1 criado acima aparece:
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCyV8y8LjJk3fVSaH0ZFx9gQJDEqvqi+tUcj8B37CYPUeR1SGiBgS0WmEFux/q9KWdPlNQDJQOlXS5cyH4InLN+4feu5cVtLqtFB54Fh5wKu4KY+yL4O7aosXh/JbFeMwtpS0ev9r61Cczm5gNPNLDglbsbmHKI3O9xDNIVroauHMLUFw+MO2uSIypYI8Yrf4IomMnHHq/eAwycg+bmRiqXfZHHklS2NF47iLphJY04w4Ot2fcjTXuKWvXyZZiwi/zEwZs64vAwzO4qcBnN0iQT7rsDsnZVjufcMgTpe89Qt0O8btLXOV7ELuXQ7JwosnGnkzDZ9zrXxZiFeFSoeiXWPcM15pzSnI1iktcmNSU0BSLL7zl05O4Bx1MwbXJWlNmyDtNtmboHOefeKQSON5gCXmCzunz1lkvjH4Urqhe9RT6PvdwhVjx4ZUwjxF4f3SUOCOhkoW+5ylqNdmhlvSrJM+hC+rWT3r24UkxtJlLUAf+/cyJc6GGCwB6TAH7wJyr5uUyy2w8KF+niFuk+EuCC3f4Cq+aSlRoLBL81/oD0TDkGkHFhwpa8WhUN2uIbBqkTehXOGje7ZB0UQNGXKYqmNVfNC6xWPHhj1dJs+q0uWx34sZ3v6jYRVsP/DsoB9rhy0y8URhXExjQC4LY9jW6CO5tFRNHzYcKuIw71/t+KWQ== alex.peral@yahoo.com.br
 
-listassets
+# Agora vamos baixar o app teste:
 
-Cheque o saldo em ambos os nós:
+DEvemos instalar o multichain-node
 
-gettotalbalances
+npm install multichain-node --save
 
-No primenro nó, mande 100 unidades p/ a wallet do segundo nó:
+PAra baixar o app:
 
-sendassettoaddress <codigoissue> asset1 100
+git clone git@github.com:scoin/multichain-node.git
 
-Vai dar um erro de permissão, ainda no nó 1 garanta a permissão:
+Pode baixar p qualquer diretório. Após, deve-se entrar no diretório do App e executar:
 
-grant <codigo> receive,send
+npm install
+npm test
 
-Tente novamente:
-
-sendassettoaddress <codigoissue> asset1 100
-
-
-Cheque novamente o saldo:
-
-gettotalbalances 0
-
-Você também pode checar a transação em cada nó:
-
-listwallettransactions 1
-
-
-Pronto! Você já consegue enviar e receber moedas de um nó p/outro!
-
-#5 Configurando o nó 1 para acesso RPC
-
-altere os parâmetros da  chain1/params.dat
-
-Coloque true para anyone-can-connect, anyone-can-send, anyone-can-receive, anyone-can-issue
-
-Mais abaixo no final do arquivo veja o número da porta RPC no parametro "default-rpc-port =". Ele será útil.
-
-#Subindo a Chain com os parametros RPC
-
-multichaind chain1 -daemon -rpcuser='teste' -rpcpassword='teste'
-
+Test é a nossa App, navegando pelos diretórios, pode-se chegar ao arquivo test.js, ao editá-lo, é possível alterar a porta RPC, user e senha. Isto precisa ser alterado p/ funcionar.
 
 
 
